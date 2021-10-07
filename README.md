@@ -7,6 +7,7 @@ Usage :
 To test all files at once, use sh script :
 
 `chmod +x test.sh`
+
 `./test.sh`
 
 When C < 100 :
