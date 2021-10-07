@@ -1,10 +1,15 @@
 const fs = require('fs');
-const filename = "samples/8_harder.txt"
-const data = fs.readFileSync(filename, {encoding:'utf8', flag:'r'}).split('\n');
+const filename = process.argv[2];
+var data;
 
-//to do : better way to choose file to read
-
-//to do : error handling (wrong file...)
+try
+{
+    data = fs.readFileSync(filename, {encoding:'utf8', flag:'r'}).split('\n');
+}
+catch(err)
+{
+    throw err;   
+}
 
 const L = parseInt(data[0].split(' ')[0]); 
 const C = parseInt(data[0].split(' ')[1]);
@@ -16,8 +21,6 @@ for (i = 1; i < (N + 1); i++)
 {
     groups.push(parseInt(data[i]));
 }
-
-//console.log(L, C, N, groups);
 
 //naive algorithm _ simply iterates over the groups -> works for samples 1 to 5 only and then too slow
 
@@ -40,9 +43,10 @@ function computeGroups(L, C, N, groups)
     console.log(sum);
 }
 
-function buildListToAnalyze(L, C, N, groups)
+
+function buildListToAnalyze(L, N, groups)
 {
-    const lenList = 3 *  N;
+    const lenList = 3 * N;
     let retList = [];
     let allGroupsSeen = 0;
     let countSeen = N;
@@ -59,14 +63,11 @@ function buildListToAnalyze(L, C, N, groups)
             countSeen -= 1;
         }
         retList.push(capacity);
-        //console.log(countSeen, retList);
         if (countSeen <= 0 && allGroupsSeen == 0)
         {
             allGroupsSeen = retList.length;
         }
     }
-    //console.log(retList);
-    //console.log(allGroupsSeen);
     let retDict = {"allGroupsSeen": allGroupsSeen,
                     "listAnalyze": retList};
     return (retDict);
@@ -78,7 +79,7 @@ function analyzeList(listAnalyze, start_i, periode)
     for (i = 0; i < periode; i++)
     {
         retList.push(listAnalyze[start_i + i]);
-        if (retList[i] != listAnalyze[start_i + i + periode])
+        if (retList[i] != listAnalyze[start_i + i + periode] || retList[i] != listAnalyze[start_i + i + 2 * periode])
         {
             return [];
         }
@@ -142,11 +143,14 @@ function computeGroupsWithPattern(C, pattern, startIndex, listAnalyze)
     return (sum);
 }
 
-//computeGroups(L, C, N, groups);
-
-let retDict = buildListToAnalyze(L, C, N, groups);
-console.log(retDict["listAnalyze"], retDict["allGroupsSeen"]);
-let retDict2 = findPattern(retDict["listAnalyze"], retDict["allGroupsSeen"]);
-console.log(retDict2["pattern"], retDict2["startIndex"]);
-let totalsum = computeGroupsWithPattern(C, retDict2["pattern"], retDict2["startIndex"], retDict["listAnalyze"]);
-console.log(totalsum);
+if (C < 100)
+{
+    computeGroups(L, C, N, groups);
+}
+else
+{
+    let retDict = buildListToAnalyze(L, N, groups);
+    let retDict2 = findPattern(retDict["listAnalyze"], retDict["allGroupsSeen"]);
+    let totalsum = computeGroupsWithPattern(C, retDict2["pattern"], retDict2["startIndex"], retDict["listAnalyze"]);
+    console.log(totalsum);
+}
